@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Authentication</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 400px; margin: auto; padding: 20px; }
+        label, input, button { display: block; margin-bottom: 10px; width: 100%; }
+        button { background-color: #4CAF50; color: white; padding: 10px; cursor: pointer; }
+        .form-container { display: none; }
+        .active { display: block; }
+    </style>
+</head>
+<body>
+
+    <h2>User Authentication</h2>
+    <button onclick="showForm('registerForm')">Register</button>
+    <button onclick="showForm('loginForm')">Login</button>
+
+    <!-- Registration Form -->
+    <div id="registerForm" class="form-container">
+        <h3>Register</h3>
+        <form id="registrationForm">
+            <label for="registerName">Name:</label>
+            <input type="text" id="registerName" name="name" required>
+
+            <label for="registerEmail">Email:</label>
+            <input type="email" id="registerEmail" name="email" required>
+
+            <label for="registerPassword">Password:</label>
+            <input type="password" id="registerPassword" name="password" required>
+
+            <button type="submit">Register</button>
+        </form>
+    </div>
+
+    <!-- Login Form -->
+    <div id="loginForm" class="form-container">
+        <h3>Login</h3>
+        <form id="loginFormElement">
+            <label for="loginEmail">Email:</label>
+            <input type="email" id="loginEmail" name="email" required>
+
+            <label for="loginPassword">Password:</label>
+            <input type="password" id="loginPassword" name="password" required>
+
+            <button type="submit">Login</button>
+        </form>
+    </div>
+
+    <script>
+        function showForm(formId) {
+            document.getElementById('registerForm').classList.remove('active');
+            document.getElementById('loginForm').classList.remove('active');
+            document.getElementById(formId).classList.add('active');
+        }
+
+        document.getElementById('registrationForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+
+            try {
+                const response = await fetch('http://localhost:4000/api/user/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, password })
+                });
+                const data = await response.json();
+                alert(data.message || 'Registration successful!');
+            } catch (error) {
+                alert('An error occurred during registration.');
+                console.error(error);
+            }
+        });
+
+        document.getElementById('loginFormElement').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const response = await fetch('http://localhost:4000/api/user/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await response.json();
+                alert(data.message || 'Login successful!');
+            } catch (error) {
+                alert('An error occurred during login.');
+                console.error(error);
+            }
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Management</title>
+</head>
+<body>
+    <h1>Add Food Item</h1>
+    <form id="addFoodForm" enctype="multipart/form-data">
+        <input type="text" id="foodName" placeholder="Food Name" required><br>
+        <input type="text" id="foodDescription" placeholder="Description" required><br>
+        <input type="number" id="foodPrice" placeholder="Price" required><br>
+        <input type="text" id="foodCategory" placeholder="Category" required><br>
+        <input type="file" id="foodImage" required><br>
+        <button type="submit">Add Food</button>
+    </form>
+
+    <h1>Food List</h1>
+    <button onclick="fetchFoodList()">Load Food List</button>
+    <ul id="foodList"></ul>
+
+    <h1>Remove Food Item</h1>
+    <input type="text" id="foodId" placeholder="Enter Food ID to remove">
+    <button onclick="removeFoodItem()">Remove Food</button>
+
+    <script>
+        // Add food item
+        document.getElementById('addFoodForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = new FormData();
+            formData.append('name', document.getElementById('foodName').value);
+            formData.append('description', document.getElementById('foodDescription').value);
+            formData.append('price', document.getElementById('foodPrice').value);
+            formData.append('category', document.getElementById('foodCategory').value);
+            formData.append('image', document.getElementById('foodImage').files[0]);
+
+            const response = await fetch('http://localhost:4000/api/food/add', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                alert('Food item added successfully');
+                fetchFoodList(); // Refresh the list after adding
+            } else {
+                alert('Failed to add food item');
+            }
+        });
+
+        // Fetch food list
+        async function fetchFoodList() {
+            const response = await fetch('http://localhost:4000/api/food/list');
+            const data = await response.json();
+            const foodList = document.getElementById('foodList');
+            foodList.innerHTML = '';
+            if (data.success) {
+                data.data.forEach(food => {
+                    const li = document.createElement('li');
+                    li.textContent = `${food.name} - ${food.price}`;
+                    foodList.appendChild(li);
+                });
+            } else {
+                alert('Failed to fetch food list');
+            }
+        }
+
+        // Remove food item
+        async function removeFoodItem() {
+            const foodId = document.getElementById('foodId').value;
+            if (!foodId) {
+                alert('Please enter a food ID');
+                return;
+            }
+
+            const response = await fetch('http://localhost:4000/api/food/remove', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ id: foodId })
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                alert('Food item removed successfully');
+                fetchFoodList(); // Refresh the food list
+            } else {
+                alert('Failed to remove food item');
+            }
+        }
+    </script>
+</body>
+</html>
